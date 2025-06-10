@@ -39,3 +39,18 @@ with D_ne_eq (n : nat) : D_ne -> D_ne -> Prop :=
   D_ne_eq n e0 e1 ->
   D_eq n d0 d1 ->
   D_ne_eq n (D_App e0 d0) (D_App e1 d1).
+
+Definition S_Ne (d0 d1 : D) :=
+  match d0, d1 with
+  | D_Neu d0, D_Neu d1 => forall n, D_ne_eq n d0 d1
+  | _, _ => False
+  end.
+
+Definition FunSpace (E_Dom E_CoDom : D -> D -> Prop) (d0 d1 : D) :=
+  forall e0 e1, E_Dom e0 e1 -> exists d0' d1', ap d0 e0 d0' /\ ap d1 e1 d1' /\ E_CoDom d0' d1'.
+
+Fixpoint SEq (A : Ty) : D -> D -> Prop :=
+  match A with
+  | Void => S_Ne
+  | Fun A B => FunSpace (SEq A) (SEq B)
+  end.
