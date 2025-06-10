@@ -27,6 +27,12 @@ Inductive D_eq (n : nat) : D -> D -> Prop :=
   D_eq (S n) d (D_Neu (D_App e (D_Neu (D_Idx n)))) ->
   D_eq n (D_Fun a ρ) (D_Neu e)
 
+| E_FunFun a ρ d a' ρ' d' :
+  compile (D_Neu (D_Idx n) .: ρ) a d ->
+  compile (D_Neu (D_Idx n) .: ρ') a' d' ->
+  D_eq (S n) d d' ->
+  D_eq n (D_Fun a ρ) (D_Fun a' ρ')
+
 | E_NeuFun a ρ e d :
   compile (D_Neu (D_Idx n) .: ρ) a d ->
   D_eq (S n) (D_Neu (D_App e (D_Neu (D_Idx n)))) d ->
@@ -54,3 +60,29 @@ Fixpoint SEq (A : Ty) : D -> D -> Prop :=
   | Void => S_Ne
   | Fun A B => FunSpace (SEq A) (SEq B)
   end.
+
+Lemma adequacy  : forall A,
+    (forall n d0 d1, SEq A d0 d1 -> D_eq n d0 d1) /\
+      (forall e0 e1, (forall n, D_ne_eq n e0 e1) -> SEq A (D_Neu e0) (D_Neu e1)).
+Proof.
+  elim => //=.
+  - hauto lq:on unfold:S_Ne inv:D ctrs:D_eq.
+  - move => A [ihA0 ihA1] B [ihB0 ihB1].
+    split.
+    + move => n d0 d1.
+      rewrite /FunSpace => hFun.
+      have : SEq A (D_Neu (D_Idx n)) (D_Neu (D_Idx n)) by qauto ctrs:D_ne_eq.
+      move /hFun.
+      move => [d0'][d1'][h0][h1].
+      move => {}/ihB0 => ihB0.
+      move {ihA0 ihA1 ihB1}.
+      destruct d0, d1; sauto.
+    + rewrite /FunSpace.
+      move => e0 e1 he e2 e3 hDom.
+      do 2 eexists.
+      repeat split. constructor. constructor.
+      apply ihB1.
+      move => n.
+      move : he => /(_ n). move /(ihA0 n) : hDom.
+      clear. move => h0 h1. by constructor.
+Qed.
