@@ -1,4 +1,4 @@
-Require Import domain.
+Require Export domain.
 
 Inductive compile : (nat -> D) -> Tm -> D -> Prop :=
 | C_Var ρ i :
@@ -11,7 +11,7 @@ Inductive compile : (nat -> D) -> Tm -> D -> Prop :=
   ap d d' d'' ->
   compile ρ (App a b) d''
 with ap : D -> D -> D -> Prop :=
-| A_Fun a ρ (d d' d'' : D) :
+| A_Fun a ρ (d d' : D) :
   compile (d .: ρ) a d' ->
   ap (D_Fun a ρ) d d'
 | A_Neu e d :
