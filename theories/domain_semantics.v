@@ -76,7 +76,11 @@ Proof.
       move => [d0'][d1'][h0][h1].
       move => {}/ihB0 => ihB0.
       move {ihA0 ihA1 ihB1}.
-      destruct d0, d1; sauto.
+      destruct d0, d1.
+      hauto q:on ctrs:D_eq inv:ap.
+      hauto q:on ctrs:D_eq inv:ap.
+      hauto q:on ctrs:D_eq inv:ap.
+      hauto lq:on rew:off ctrs:D_ne_eq, D_eq inv:D_ne_eq, D_eq,ap.
     + rewrite /FunSpace.
       move => e0 e1 he e2 e3 hDom.
       do 2 eexists.
